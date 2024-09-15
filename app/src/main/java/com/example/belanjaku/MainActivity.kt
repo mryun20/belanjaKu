@@ -141,7 +141,7 @@ class MainActivity : AppCompatActivity() {
         val type = object : TypeToken<ArrayList<String>>(){}.type
         // in below line we are getting data from gson
         // and saving it to our array list
-        if(type.toString().isNotEmpty()){
+        if(json != null && type.toString().isNotEmpty()){
             exampleArray = gson.fromJson(json, object : TypeToken<ArrayList<String>>() {}.type)
         }else{
             exampleArray = ArrayList()
