@@ -31,14 +31,12 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
-
+        textSum = findViewById(R.id.textAnswer)
         loadData()
 
-//        exampleArray = ArrayList()
         customAdapter = CustomAdapter(exampleArray)
         recyclerView = findViewById(R.id.listView)
         textData = findViewById(R.id.editInput)
-        textSum = findViewById(R.id.textAnswer)
 
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = customAdapter
@@ -143,6 +141,9 @@ class MainActivity : AppCompatActivity() {
         // and saving it to our array list
         if(json != null && type.toString().isNotEmpty()){
             exampleArray = gson.fromJson(json, object : TypeToken<ArrayList<String>>() {}.type)
+            sumAmount()
+
+
         }else{
             exampleArray = ArrayList()
         }
