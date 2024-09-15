@@ -2,6 +2,7 @@ package com.example.belanjaku
 
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
@@ -12,6 +13,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import java.math.BigDecimal
 import java.text.DecimalFormat
 
@@ -24,13 +27,14 @@ class MainActivity : AppCompatActivity() {
     private lateinit var textData : EditText
     private lateinit var textSum :TextView
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
 
-        exampleArray = ArrayList()
+        loadData()
+
+//        exampleArray = ArrayList()
         customAdapter = CustomAdapter(exampleArray)
         recyclerView = findViewById(R.id.listView)
         textData = findViewById(R.id.editInput)
@@ -67,6 +71,7 @@ class MainActivity : AppCompatActivity() {
             customAdapter.notifyItemRangeChanged(position,exampleArray.count());
 
             sumAmount()
+            saveData()
         }
     }
 
@@ -107,12 +112,9 @@ class MainActivity : AppCompatActivity() {
             exampleArray += input
             customAdapter.notifyItemInserted(item)
             sumAmount()
-
-//            Toast.makeText(this, "Add", LENGTH_SHORT).show()
+            saveData()
 
             textData.setText("")
-//            textData.clearFocus()
-
             val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
             imm.hideSoftInputFromWindow(currentFocus!!.windowToken, 0)
 
@@ -120,4 +122,44 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(this, "Please insert amount", LENGTH_SHORT).show()
         }
     }
+
+    /**
+     * Check the data at local preferences for previous record
+     * Using share preferences and gson
+     */
+    private fun loadData() {
+        // method to load arraylist from shared prefs
+        // initializing our shared prefs with name as
+        // shared preferences.
+        val sharedPreferences = getSharedPreferences("shared preferences", MODE_PRIVATE)
+        // creating a variable for gson.
+        val gson = Gson()
+        // below line is to get to string present from our
+        // shared prefs if not present setting it as null.
+        val json = sharedPreferences.getString("courses", null)
+        // below line is to get the type of our array list.
+        val type = object : TypeToken<ArrayList<String>>(){}.type
+        // in below line we are getting data from gson
+        // and saving it to our array list
+        if(type.toString().isNotEmpty()){
+            exampleArray = gson.fromJson(json, object : TypeToken<ArrayList<String>>() {}.type)
+        }else{
+            exampleArray = ArrayList()
+        }
+    }
+
+    /**
+     * Save and update data to local shared preferences
+     */
+    private fun saveData() {
+        val sharedPreferences = getSharedPreferences("shared preferences", MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        val gson = Gson()
+        val example = exampleArray
+        val json = gson.toJson(example)
+        editor.putString("courses", json)
+        editor.apply()
+    }
+
+
 }
